@@ -85,31 +85,44 @@ def _vibration_index(frames: List[np.ndarray]) -> float:
 
 
 def _detect_visual_events(frames: List[np.ndarray]) -> List[str]:
-    """HSV color-heuristic cues for fire and smoke. Deliberately
-    conservative thresholds to avoid false positives on ordinary gray
-    machine bodies / concrete floors."""
+    """HSV color-heuristic cues for fire and smoke.
+
+    Important calibration note (found via real test footage, not assumed):
+    warm/saturated/bright industrial equipment colors (e.g. safety-yellow
+    power tools) sit in the SAME hue range as fire in HSV space — hue alone
+    cannot tell a yellow drill from an orange flame. Real fire flickers
+    (its pixel coverage varies significantly frame-to-frame); a painted
+    object's coverage stays roughly constant. So fire detection requires
+    BOTH meaningful warm-color coverage AND high temporal variance in that
+    coverage — not just a static color match.
+    """
     if len(frames) < 4:
         return []
 
-    fire_hits = 0
+    fire_ratios = []
     smoke_ratios = []
 
     for frame in frames:
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         h, s, v = hsv[..., 0], hsv[..., 1], hsv[..., 2]
 
-        # Fire: warm hue (red-orange-yellow in OpenCV's 0-179 H range),
-        # high saturation, high brightness.
-        fire_mask = (h <= 25) & (s >= 130) & (v >= 160)
-        if float(np.mean(fire_mask)) > 0.02:  # >2% of frame
-            fire_hits += 1
+        # Fire: warm hue (red-orange in OpenCV's 0-179 H range), high
+        # saturation, high brightness. Hue capped tighter than a naive
+        # "warm color" range to lean away from yellow industrial equipment.
+        fire_mask = (h <= 15) & (s >= 130) & (v >= 160)
+        fire_ratios.append(float(np.mean(fire_mask)))
 
         # Smoke proxy: desaturated, mid-to-bright regions.
         smoke_mask = (s <= 35) & (v >= 90) & (v <= 220)
         smoke_ratios.append(float(np.mean(smoke_mask)))
 
     events = []
-    if fire_hits / len(frames) > 0.3:
+    fire_mean = sum(fire_ratios) / len(fire_ratios)
+    fire_std = (sum((r - fire_mean) ** 2 for r in fire_ratios) / len(fire_ratios)) ** 0.5
+    fire_cv = fire_std / fire_mean if fire_mean > 1e-6 else 0.0
+    # Require both real coverage (>3% of frame) and flicker (coefficient of
+    # variation > 0.3) — a static colored object fails the flicker check.
+    if fire_mean > 0.03 and fire_cv > 0.3:
         events.append("indikasi_api")
 
     # Only flag smoke if haze coverage is trending UP over the clip (spreading),
@@ -129,8 +142,15 @@ def analyze_video(video_path: str) -> VisualAnomalyResult:
     vibration_index = _vibration_index(frames)
     events = _detect_visual_events(frames)
 
-    # Normalize vibration_index (typically 0.0 - ~1.5 in practice) into 0-1.
-    base_score = min(vibration_index / 1.2, 1.0)
+    # Normalize vibration_index into 0-1. Divisor calibrated from real
+    # handheld phone footage (2026-08-25): a static/idle object filmed
+    # handheld already reads ~1.0-1.1 due to hand tremor alone, which
+    # saturated this score at the old divisor (1.2) regardless of actual
+    # machine state. Raised to 2.0 so handheld tremor noise doesn't
+    # automatically max out the score — footage on a stable
+    # tripod/mount (recommended for the actual demo) will read
+    # considerably lower at rest, preserving good discrimination.
+    base_score = min(vibration_index / 2.0, 1.0)
     event_bonus = 0.25 if events else 0.0
     score = min(base_score + event_bonus, 1.0)
 
