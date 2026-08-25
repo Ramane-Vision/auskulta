@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Auskulta — AI Machine Health Monitor</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <main class="container">
+    <header>
+      <h1>Auskulta</h1>
+      <p class="subtitle">AI yang "mendengar &amp; melihat" kondisi mesin — upload satu video, dapatkan satu diagnosis kesehatan mesin.</p>
+    </header>
+
+    <section class="upload-card">
+      <input type="file" id="video-input" accept="video/*" />
+      <button id="analyze-btn">Analisis Video</button>
+      <p id="status" class="status"></p>
+    </section>
+
+    <section id="result" class="result hidden">
+      <div class="urgency-badge" id="urgency-badge"></div>
+
+      <div class="score-row">
+        <div class="score-box">
+          <span class="score-label">Skor Visual</span>
+          <span class="score-value" id="visual-score">-</span>
+        </div>
+        <div class="score-box">
+          <span class="score-label">Skor Audio</span>
+          <span class="score-value" id="audio-score">-</span>
+        </div>
+        <div class="score-box combined">
+          <span class="score-label">Skor Gabungan</span>
+          <span class="score-value" id="combined-score">-</span>
+        </div>
+      </div>
+
+      <div class="diagnosis-block">
+        <h2>Diagnosis</h2>
+        <p id="diagnosis-text">-</p>
+      </div>
+
+      <div class="diagnosis-block">
+        <h2>Estimasi Downtime</h2>
+        <p id="downtime-text">-</p>
+      </div>
+
+      <div class="diagnosis-block">
+        <h2>Rekomendasi Tindakan</h2>
+        <p id="action-text">-</p>
+      </div>
+
+      <details class="raw-details">
+        <summary>Detail teknis (untuk teknisi)</summary>
+        <pre id="raw-json"></pre>
+      </details>
+    </section>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
