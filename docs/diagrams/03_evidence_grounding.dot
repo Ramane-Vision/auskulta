@@ -1,0 +1,36 @@
+digraph EvidenceGrounding {
+    rankdir=TB;
+    bgcolor="white";
+    fontname="Helvetica";
+    node [fontname="Helvetica", fontsize=12, shape=box, style="rounded,filled", margin="0.25,0.15"];
+    edge [fontname="Helvetica", fontsize=10, color="#666666"];
+
+    Machine [label="MESIN SAAT INI\nvisual anomaly + audio anomaly terdeteksi", fillcolor="#8B1538", fontcolor="white", fontsize=13];
+
+    Query [label="QUERY\n(gejala visual + audio digabung jadi teks pencarian)", fillcolor="#E8E8E8", color="#666666"];
+
+    Memory [label="ORGANIZATIONAL MEMORY\n(knowledge_base.json)", fillcolor="#F3E1E8", color="#8B1538"];
+
+    MR1 [label="MR-001\nConveyor Motor M-03", fillcolor="#F9F0F4", color="#8B1538", fontsize=10];
+    MR4 [label="MR-004\nPackaging Line L-02", fillcolor="#F9F0F4", color="#8B1538", fontsize=10];
+    MR7 [label="MR-007\nConveyor Motor M-03", fillcolor="#F9F0F4", color="#8B1538", fontsize=10];
+
+    Sim [label="SIMILARITY + CONFIDENCE\n(tinggi / sedang / tidak cukup evidence)", fillcolor="#FCE8B2", color="#B8860B"];
+
+    Gate [label="EVIDENCE-CONFIDENCE GATE\n(diterapkan di kode, bukan hanya prompt)", fillcolor="#FCE8B2", color="#B8860B", fontsize=12];
+
+    Sufficient [label="CUKUP MIRIP\n→ LLM boleh diagnosis,\nwajib rujuk evidence", fillcolor="#F3E1E8", color="#8B1538"];
+    Insufficient [label="TIDAK CUKUP MIRIP\n→ \"kemungkinan kasus baru\"\n(tanpa mengarang penyebab)", fillcolor="#E8E8E8", color="#666666"];
+
+    Machine -> Query;
+    Query -> Memory;
+    Memory -> MR1;
+    Memory -> MR4;
+    Memory -> MR7;
+    MR1 -> Sim;
+    MR4 -> Sim;
+    MR7 -> Sim;
+    Sim -> Gate;
+    Gate -> Sufficient [label="  ya"];
+    Gate -> Insufficient [label="  tidak"];
+}

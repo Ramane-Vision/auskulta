@@ -1,0 +1,33 @@
+digraph ProblemSolution {
+    rankdir=TB;
+    bgcolor="white";
+    fontname="Helvetica";
+    node [fontname="Helvetica", fontsize=12, shape=box, style="rounded,filled", margin="0.25,0.15"];
+    edge [fontname="Helvetica", fontsize=10, color="#666666"];
+
+    Gejala [label="MESIN MENUNJUKKAN GEJALA TIDAK NORMAL", fillcolor="#8B1538", fontcolor="white", fontsize=13];
+    Bingung [label="Operator tidak yakin: normal atau tanda kerusakan?", fillcolor="#E8E8E8", color="#666666"];
+
+    Tanya [label="Tanya teknisi senior", fillcolor="#F3E1E8", color="#8B1538"];
+    Cari [label="Cari SOP / laporan lama", fillcolor="#F3E1E8", color="#8B1538"];
+    Tunggu [label="Tunggu diagnosis manual", fillcolor="#F3E1E8", color="#8B1538"];
+
+    Masalah [label="Pengetahuan terfragmentasi (PDF, Excel, WhatsApp, ingatan orang)\n→ setiap gejala diperlakukan seperti kasus baru\n→ downtime tak terduga", fillcolor="#FCE8B2", color="#B8860B"];
+
+    Auskulta [label="AUSKULTA", fillcolor="#8B1538", fontcolor="white", fontsize=14];
+    SeeHear [label="See + Hear + Remember", fillcolor="#F3E1E8", color="#8B1538"];
+    Grounded [label="Evidence-grounded diagnosis\n(bukan tebakan bebas)", fillcolor="#F3E1E8", color="#8B1538"];
+    Faster [label="Keputusan maintenance lebih cepat\ndan bisa dipertanggungjawabkan", fillcolor="#8B1538", fontcolor="white"];
+
+    Gejala -> Bingung;
+    Bingung -> Tanya;
+    Bingung -> Cari;
+    Bingung -> Tunggu;
+    Tanya -> Masalah;
+    Cari -> Masalah;
+    Tunggu -> Masalah;
+    Masalah -> Auskulta;
+    Auskulta -> SeeHear;
+    SeeHear -> Grounded;
+    Grounded -> Faster;
+}

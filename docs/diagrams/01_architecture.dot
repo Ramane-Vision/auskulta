@@ -1,0 +1,31 @@
+digraph Architecture {
+    rankdir=TB;
+    bgcolor="white";
+    fontname="Helvetica";
+    node [fontname="Helvetica", fontsize=12, shape=box, style="rounded,filled", margin="0.25,0.15"];
+    edge [fontname="Helvetica", fontsize=10, color="#666666"];
+
+    Input [label="UPLOAD 1 VIDEO MESIN", fillcolor="#8B1538", fontcolor="white", shape=box, style="rounded,filled", fontsize=13];
+
+    Visual [label="VISUAL ANOMALY\noptical flow — selalu jalan", fillcolor="#F3E1E8", color="#8B1538"];
+    Audio [label="AUDIO ANOMALY\nfitur spektral — best-effort", fillcolor="#F3E1E8", color="#8B1538"];
+
+    Memory [label="ORGANIZATIONAL MEMORY RETRIEVAL\nsemantic embedding (utama) + TF-IDF (fallback)\natas histori maintenance", fillcolor="#F3E1E8", color="#8B1538"];
+
+    Gate [label="EVIDENCE-CONFIDENCE GATE\nevidence cukup mirip?\n(gate berbasis kode, bukan hanya instruksi LLM)", fillcolor="#FCE8B2", color="#B8860B"];
+
+    LLM [label="LLM DIAGNOSIS\nevidence-grounded, JSON terstruktur", fillcolor="#F3E1E8", color="#8B1538"];
+    Fallback [label="FALLBACK AMAN\n\"kemungkinan kasus baru\"\ntanpa mengarang", fillcolor="#E8E8E8", color="#666666"];
+
+    Report [label="1 LAPORAN KESEHATAN MESIN\nskor, urgensi, diagnosis, evidence,\nestimasi downtime, rekomendasi", fillcolor="#8B1538", fontcolor="white", fontsize=13];
+
+    Input -> Visual;
+    Input -> Audio;
+    Visual -> Memory;
+    Audio -> Memory;
+    Memory -> Gate;
+    Gate -> LLM [label="  cukup"];
+    Gate -> Fallback [label="  tidak cukup"];
+    LLM -> Report;
+    Fallback -> Report;
+}
