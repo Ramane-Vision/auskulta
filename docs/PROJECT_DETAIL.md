@@ -86,7 +86,7 @@ Kebanyakan solusi predictive maintenance yang umum di kompetisi berhenti di `sen
 backend/
 ├── main.py        FastAPI app, 1 endpoint: POST /api/analyze
 ├── vision.py       deteksi anomali visual (OpenCV optical flow) — sinyal utama
-├── audio.py        deteksi anomali audio (fitur spektral) — sinyal sekunder, best-effort
+├── audio.py        deteksi anomali audio (IsolationForest terlatih, fallback fitur spektral) — sinyal sekunder, best-effort
 ├── knowledge.py    organizational memory: embedding retrieval (utama) + TF-IDF (fallback)
 ├── diagnosis.py    fusion visual+audio+evidence → LLM diagnosis (dengan fallback rule-based)
 └── config.py       konfigurasi env (LLM API key, dsb.)
@@ -98,7 +98,7 @@ data/
 └── knowledge_base.json   histori maintenance sintetis
 ```
 
-**Tech stack**: Python, FastAPI, OpenCV (vision), librosa (audio), OpenAI embeddings + scikit-learn TF-IDF fallback (retrieval), LLM API (OpenAI-compatible, via `.env`), Docker Compose.
+**Tech stack**: Python, FastAPI, OpenCV (vision), librosa + IsolationForest terlatih (audio), OpenAI embeddings + scikit-learn TF-IDF fallback (retrieval), LLM API (OpenAI-compatible, via `.env`), Docker Compose.
 
 ## 9. Menjalankan Secara Lokal
 
@@ -132,7 +132,7 @@ Buka `http://localhost:8000`, upload video mesin, klik "Analisis Video".
 
 ## 11. Yang Masih Perlu Disempurnakan (Known Limitations)
 
-- Skor vision & audio berbasis heuristik yang belum dikalibrasi terhadap dataset berlabel — perlu validasi terhadap rekaman mesin sungguhan.
+- Skor vision masih berbasis heuristik (optical flow) yang dikalibrasi manual, belum tervalidasi formal (precision/recall) terhadap dataset berlabel besar. Audio sudah pakai model terlatih (IsolationForest, DCASE 2023 Task 2) tapi juga belum ada evaluasi precision/recall formal.
 - Optical flow dapat salah membaca goyangan kamera sebagai anomali mesin — rekaman sebaiknya menggunakan tripod/penyangga stabil.
 - Jalur fallback retrieval (TF-IDF, aktif kalau embedding API tidak tersedia) berbasis kecocokan kata, bukan makna — sinonim/parafrasa antara gejala dan catatan histori mungkin tidak cocok di jalur ini.
 - Deteksi visual api/asap masih heuristik warna (HSV), bukan model terlatih — bisa salah pada pencahayaan warna hangat yang tidak terkait anomali.
@@ -143,7 +143,7 @@ Buka `http://localhost:8000`, upload video mesin, klik "Analisis Video".
 
 - Perluas knowledge base dari data maintenance riil (bukan sintetis).
 - Ganti heuristik warna api/asap dengan model deteksi objek visual terlatih (berlisensi jelas — MIT/Apache, bukan AGPL) atau dilatih sendiri oleh tim.
-- Tingkatkan akurasi audio dengan melatih model anomaly detection (IsolationForest/autoencoder) di dataset publik MIMII — hook sudah disiapkan di `audio.py` (`models/audio_anomaly_model.joblib`). Percobaan download dataset penuh terkendala bandwidth pada tahap penyisihan.
+- Perluas data training audio (saat ini 500 sampel DCASE 2023 Task 2) dengan MIMII penuh atau data pabrik riil, dan tambahkan evaluasi precision/recall formal untuk model `models/audio_anomaly_model.joblib`.
 - Tingkatkan jalur fallback retrieval (mis. embedding lokal ringan) supaya kualitas tidak terlalu turun saat API eksternal tidak tersedia.
 - Tambahkan fitur "Knowledge Gap Detection" — menandai ketika sebuah gejala tidak punya histori sama sekali, sebagai sinyal SOP baru perlu dibuat.
 - Tambahkan automated test suite dan evaluation benchmark berbasis dataset berlabel (harness sudah disiapkan di `backend/scripts/evaluate.py`).

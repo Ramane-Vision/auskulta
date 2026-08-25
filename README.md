@@ -49,7 +49,7 @@ Diagnosis akhir dihasilkan oleh LLM dan **selalu di-ground pada evidence histori
 ## ✨ Fitur
 
 - ✅ Deteksi anomali visual dari video (optical flow) — tanpa perlu dataset eksternal
-- ✅ Deteksi anomali audio dari track suara video — sinyal tambahan, gagal dengan aman (graceful degradation)
+- ✅ Deteksi anomali audio dari track suara video menggunakan model IsolationForest terlatih (500 sampel real dari dataset DCASE 2023 Task 2, penerus MIMII) — sinyal tambahan, gagal dengan aman (graceful degradation)
 - ✅ Organizational memory — retrieval histori maintenance berbasis semantic embedding (OpenAI), otomatis fallback ke TF-IDF kalau API tidak tersedia
 - ✅ Diagnosis LLM yang di-ground pada evidence, lengkap dengan urgensi, estimasi downtime, dan rekomendasi tindakan
 - ✅ Explainable reasoning trace ("Kenapa diagnosis ini?") — evidence visual, audio, dan historis ditampilkan terpisah dengan tingkat confidence
@@ -90,7 +90,7 @@ Detail lengkap tiap komponen ada di [`docs/PROJECT_DETAIL.md`](docs/PROJECT_DETA
 | Backend | Python, FastAPI |
 | Frontend | Next.js, TypeScript, Tailwind CSS |
 | Vision | OpenCV (optical flow) |
-| Audio | librosa (fitur spektral) |
+| Audio | librosa (fitur spektral) + IsolationForest terlatih (scikit-learn) |
 | Retrieval | OpenAI embeddings (semantic), fallback ke scikit-learn TF-IDF |
 | Reasoning | LLM API (OpenAI-compatible) |
 | Deployment | Docker Compose (backend), Next.js dev server (frontend) |
@@ -166,7 +166,7 @@ auskulta/
 
 MVP penyisihan ini sengaja dibatasi ke fondasi yang benar-benar bekerja. Peningkatan lebih lanjut direncanakan berlanjut di **Hackathon 10 jam babak final** (sesuai alur kompetisi AIC COMPFEST 18), bukan dikejar semua malam ini:
 
-- [ ] Latih model audio anomaly detection di dataset publik MIMII secara penuh (bukan subset)
+- [x] ~~Latih model audio anomaly detection~~ — IsolationForest terlatih pada 500 sampel DCASE 2023 Task 2; perluasan data training & evaluasi formal masih di roadmap
 - [ ] Tambahkan pretrained visual event detector (asap, percikan)
 - [ ] Perluas knowledge base dengan data maintenance riil dari mitra industri
 - [x] ~~Ganti TF-IDF dengan embedding model semantik~~ — sudah aktif (jalur utama), TF-IDF kini jadi fallback
