@@ -5,6 +5,8 @@ const resultEl = document.getElementById("result");
 
 const urgencyBadge = document.getElementById("urgency-badge");
 const visualScoreEl = document.getElementById("visual-score");
+const audioScoreEl = document.getElementById("audio-score");
+const combinedScoreEl = document.getElementById("combined-score");
 const diagnosisTextEl = document.getElementById("diagnosis-text");
 const downtimeTextEl = document.getElementById("downtime-text");
 const actionTextEl = document.getElementById("action-text");
@@ -52,7 +54,9 @@ function renderResult(data) {
   urgencyBadge.textContent = URGENCY_LABEL[data.urgency] || data.urgency;
   urgencyBadge.className = `urgency-badge urgency-${data.urgency}`;
 
-  visualScoreEl.textContent = data.risk_score.toFixed(2);
+  visualScoreEl.textContent = data.visual.score.toFixed(2);
+  audioScoreEl.textContent = data.audio ? data.audio.score.toFixed(2) : "N/A";
+  combinedScoreEl.textContent = data.risk_score.toFixed(2);
 
   diagnosisTextEl.textContent = data.diagnosis;
   downtimeTextEl.textContent =
