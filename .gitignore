@@ -8,7 +8,7 @@ venv/
 *.avi
 *.wav
 models/*.pt
-models/*.joblib
 models/*.h5
 datasets/
+mimii_raw/
 .DS_Store
