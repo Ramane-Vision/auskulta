@@ -1,0 +1,6 @@
+[
+  {"video": "/absolute/path/ke/video_mesin_normal_1.mp4", "expected_label": "normal"},
+  {"video": "/absolute/path/ke/video_mesin_normal_2.mp4", "expected_label": "normal"},
+  {"video": "/absolute/path/ke/video_mesin_anomali_1.mp4", "expected_label": "anomaly"},
+  {"video": "/absolute/path/ke/video_mesin_anomali_2.mp4", "expected_label": "anomaly"}
+]
