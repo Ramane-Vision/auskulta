@@ -1,0 +1,74 @@
+[
+  {
+    "id": "MR-001",
+    "machine": "Conveyor Motor M-03",
+    "symptom": "Getaran tidak stabil pada motor conveyor, terdengar sejak shift pagi, meningkat setelah mesin beroperasi lebih dari 8 jam berturut-turut.",
+    "root_cause": "Bearing degradation akibat pelumasan yang tidak rutin",
+    "action_taken": "Penggantian bearing sisi kiri dan penambahan jadwal pelumasan mingguan",
+    "downtime_hours": 6,
+    "date": "2026-03-14"
+  },
+  {
+    "id": "MR-002",
+    "machine": "Conveyor Motor M-03",
+    "symptom": "Getaran ringan pada motor, muncul secara berkala tiap beberapa hari, tidak konsisten.",
+    "root_cause": "Belt misalignment ringan",
+    "action_taken": "Penyetelan ulang posisi belt",
+    "downtime_hours": 1,
+    "date": "2026-01-22"
+  },
+  {
+    "id": "MR-003",
+    "machine": "Hydraulic Press P-07",
+    "symptom": "Pergerakan piston tersendat-sendat, disertai getaran tidak normal pada frame mesin.",
+    "root_cause": "Tekanan oli hidrolik menurun akibat kebocoran seal",
+    "action_taken": "Penggantian seal hidrolik dan pengisian ulang oli",
+    "downtime_hours": 10,
+    "date": "2026-05-02"
+  },
+  {
+    "id": "MR-004",
+    "machine": "Packaging Line L-02",
+    "symptom": "Getaran tinggi dan gerakan tidak stabil pada bagian pengemas sejak penggantian roller baru.",
+    "root_cause": "Roller baru belum di-balance dengan benar saat instalasi",
+    "action_taken": "Kalibrasi ulang balancing roller",
+    "downtime_hours": 3,
+    "date": "2026-06-19"
+  },
+  {
+    "id": "MR-005",
+    "machine": "Conveyor Motor M-05",
+    "symptom": "Getaran meningkat drastis dalam waktu singkat, disertai suara berdecit dari area motor.",
+    "root_cause": "Motor overheat akibat beban berlebih dan ventilasi tersumbat debu",
+    "action_taken": "Pembersihan ventilasi motor dan pengurangan beban operasi sementara",
+    "downtime_hours": 4,
+    "date": "2026-07-08"
+  },
+  {
+    "id": "MR-006",
+    "machine": "CNC Machine C-11",
+    "symptom": "Pergerakan spindle tidak halus, terdapat getaran periodik saat kecepatan tinggi.",
+    "root_cause": "Keausan pada coupling spindle",
+    "action_taken": "Penggantian coupling dan realignment spindle",
+    "downtime_hours": 8,
+    "date": "2026-04-27"
+  },
+  {
+    "id": "MR-007",
+    "machine": "Conveyor Motor M-03",
+    "symptom": "Getaran tidak stabil dan intensitas meningkat setelah mesin menyala lebih dari 8 jam nonstop.",
+    "root_cause": "Bearing degradation lanjutan pada sisi kanan setelah perbaikan sebelumnya",
+    "action_taken": "Penggantian bearing kedua sisi dan evaluasi ulang jadwal maintenance preventif",
+    "downtime_hours": 7,
+    "date": "2026-08-01"
+  },
+  {
+    "id": "MR-008",
+    "machine": "Packaging Line L-02",
+    "symptom": "Getaran ringan dan bunyi mendecit ringan pada rangka mesin, tidak mengganggu produksi secara signifikan.",
+    "root_cause": "Baut pengikat rangka kendor",
+    "action_taken": "Pengencangan ulang seluruh baut rangka sesuai torsi standar",
+    "downtime_hours": 1,
+    "date": "2026-02-11"
+  }
+]
