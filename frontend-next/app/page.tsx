@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import type { HealthReport } from "./types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const MAX_FILE_SIZE_BYTES = 100 * 1024 * 1024; // matches backend limit
+const ALLOWED_TYPES = ["video/mp4", "video/quicktime", "video/x-msvideo", "video/x-matroska", "video/webm"];
 
 const URGENCY_STYLES: Record<string, string> = {
   rendah: "bg-emerald-950 text-emerald-400 border-emerald-800",
@@ -38,11 +40,63 @@ function ScoreBox({ label, value, highlight }: { label: string; value: string; h
   );
 }
 
+function Spinner() {
+  return (
+    <svg className="h-5 w-5 animate-spin text-white" viewBox="0 0 24 24" fill="none">
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+    </svg>
+  );
+}
+
+function formatBytes(bytes: number) {
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+}
+
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [dragActive, setDragActive] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<HealthReport | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const pickFile = useCallback((f: File | null) => {
+    setError(null);
+    setResult(null);
+    if (!f) {
+      setFile(null);
+      setPreviewUrl(null);
+      return;
+    }
+    if (!ALLOWED_TYPES.includes(f.type) && !f.name.match(/\.(mp4|mov|avi|mkv|webm)$/i)) {
+      setError("Format file tidak didukung. Gunakan mp4, mov, avi, mkv, atau webm.");
+      return;
+    }
+    if (f.size > MAX_FILE_SIZE_BYTES) {
+      setError(`Video terlalu besar (${formatBytes(f.size)}). Maksimum 100MB.`);
+      return;
+    }
+    setFile(f);
+    setPreviewUrl(URL.createObjectURL(f));
+  }, []);
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault();
+    setDragActive(false);
+    const f = e.dataTransfer.files?.[0];
+    if (f) pickFile(f);
+  }
+
+  function handleReset() {
+    setFile(null);
+    setPreviewUrl(null);
+    setResult(null);
+    setError(null);
+    if (inputRef.current) inputRef.current.value = "";
+  }
 
   async function handleAnalyze() {
     if (!file) {
@@ -65,7 +119,11 @@ export default function Home() {
       const data: HealthReport = await res.json();
       setResult(data);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Terjadi kesalahan.");
+      setError(
+        e instanceof Error
+          ? e.message
+          : "Tidak bisa terhubung ke server. Pastikan backend (docker compose) sedang berjalan."
+      );
     } finally {
       setLoading(false);
     }
@@ -83,31 +141,82 @@ export default function Home() {
         </header>
 
         <section className="rounded-2xl border border-neutral-800 bg-neutral-900 p-6">
-          <input
-            type="file"
-            accept="video/*"
-            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-            className="block w-full text-sm text-neutral-300 file:mr-4 file:rounded-lg file:border-0 file:bg-neutral-800 file:px-4 file:py-2 file:text-sm file:text-neutral-100 hover:file:bg-neutral-700"
-          />
+          <div
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragActive(true);
+            }}
+            onDragLeave={() => setDragActive(false)}
+            onDrop={handleDrop}
+            onClick={() => inputRef.current?.click()}
+            className={`cursor-pointer rounded-xl border-2 border-dashed p-8 text-center transition ${
+              dragActive
+                ? "border-blue-500 bg-blue-950/30"
+                : "border-neutral-700 bg-neutral-950 hover:border-neutral-600"
+            }`}
+          >
+            <input
+              ref={inputRef}
+              type="file"
+              accept="video/*"
+              onChange={(e) => pickFile(e.target.files?.[0] ?? null)}
+              className="hidden"
+            />
+            {!file ? (
+              <div>
+                <p className="text-neutral-300">
+                  Seret video mesin ke sini, atau <span className="text-blue-400 underline">klik untuk pilih file</span>
+                </p>
+                <p className="mt-1 text-xs text-neutral-500">mp4, mov, avi, mkv, webm — maksimum 100MB</p>
+              </div>
+            ) : (
+              <div onClick={(e) => e.stopPropagation()}>
+                {previewUrl && (
+                  <video src={previewUrl} controls className="mx-auto mb-3 max-h-48 rounded-lg" />
+                )}
+                <p className="text-sm text-neutral-300">
+                  {file.name} <span className="text-neutral-500">({formatBytes(file.size)})</span>
+                </p>
+                <button
+                  onClick={handleReset}
+                  className="mt-2 text-xs text-neutral-500 underline hover:text-neutral-300"
+                >
+                  Ganti video
+                </button>
+              </div>
+            )}
+          </div>
+
           <button
             onClick={handleAnalyze}
-            disabled={loading}
-            className="mt-4 w-full rounded-lg bg-blue-600 px-4 py-3 font-medium text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={loading || !file}
+            className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-3 font-medium text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {loading ? "Menganalisis video..." : "Analisis Video"}
+            {loading && <Spinner />}
+            {loading ? "Menganalisis video (visual + audio + evidence)..." : "Analisis Video"}
           </button>
-          {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
+          {error && (
+            <p className="mt-3 rounded-lg bg-red-950 px-3 py-2 text-sm text-red-400">{error}</p>
+          )}
         </section>
 
         {result && (
           <section className="mt-8 space-y-6">
-            <span
-              className={`inline-block rounded-full border px-3 py-1 text-sm font-semibold ${
-                URGENCY_STYLES[result.urgency] ?? URGENCY_STYLES.sedang
-              }`}
-            >
-              {URGENCY_LABEL[result.urgency] ?? result.urgency}
-            </span>
+            <div className="flex items-center justify-between">
+              <span
+                className={`inline-block rounded-full border px-3 py-1 text-sm font-semibold ${
+                  URGENCY_STYLES[result.urgency] ?? URGENCY_STYLES.sedang
+                }`}
+              >
+                {URGENCY_LABEL[result.urgency] ?? result.urgency}
+              </span>
+              <button
+                onClick={handleReset}
+                className="text-xs text-neutral-500 underline hover:text-neutral-300"
+              >
+                Analisis video lain
+              </button>
+            </div>
 
             <div className="flex gap-3">
               <ScoreBox label="Skor Visual" value={result.visual.score.toFixed(2)} />
