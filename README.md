@@ -50,7 +50,7 @@ Diagnosis akhir dihasilkan oleh LLM dan **selalu di-ground pada evidence histori
 
 - ✅ Deteksi anomali visual dari video (optical flow) — tanpa perlu dataset eksternal
 - ✅ Deteksi anomali audio dari track suara video menggunakan model IsolationForest terlatih (500 sampel real dari dataset DCASE 2023 Task 2, penerus MIMII) — sinyal tambahan, gagal dengan aman (graceful degradation)
-- ✅ Organizational memory — retrieval histori maintenance berbasis semantic embedding (OpenAI), otomatis fallback ke TF-IDF kalau API tidak tersedia
+- ✅ Organizational memory — retrieval histori maintenance berbasis semantic embedding (API kompatibel OpenAI, mis. OpenAI atau Gemini), otomatis fallback ke TF-IDF kalau API tidak tersedia
 - ✅ Diagnosis LLM yang di-ground pada evidence, lengkap dengan urgensi, estimasi downtime, dan rekomendasi tindakan
 - ✅ Explainable reasoning trace ("Kenapa diagnosis ini?") — evidence visual, audio, dan historis ditampilkan terpisah dengan tingkat confidence
 - ✅ Safety gate berbasis kode: sistem menolak memberi diagnosis spesifik kalau evidence historis tidak cukup mirip, alih-alih membiarkan LLM mengarang
@@ -91,8 +91,8 @@ Detail lengkap tiap komponen ada di [`docs/PROJECT_DETAIL.md`](docs/PROJECT_DETA
 | Frontend | Next.js, TypeScript, Tailwind CSS |
 | Vision | OpenCV (optical flow) |
 | Audio | librosa (fitur spektral) + IsolationForest terlatih (scikit-learn) |
-| Retrieval | OpenAI embeddings (semantic), fallback ke scikit-learn TF-IDF |
-| Reasoning | LLM API (OpenAI-compatible) |
+| Retrieval | Embedding semantik via API kompatibel OpenAI (OpenAI/Gemini), fallback ke scikit-learn TF-IDF |
+| Reasoning | LLM API (OpenAI-compatible — teruji dengan OpenAI dan Gemini) |
 | Deployment | Docker Compose (backend), Next.js dev server (frontend) |
 
 ## 🚀 Quick Start

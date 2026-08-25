@@ -33,8 +33,17 @@ KNOWLEDGE_BASE_PATH = Path(__file__).resolve().parent.parent / "data" / "knowled
 # similarity metrics live on different scales: OpenAI embedding cosine
 # similarity for short related texts typically sits much higher (~0.3-0.8)
 # than TF-IDF cosine similarity on a small keyword corpus (~0.1-0.4).
-TFIDF_STRONG_THRESHOLD = 0.30
-TFIDF_WEAK_THRESHOLD = 0.10
+#
+# TF-IDF values below were measured against the 18-record knowledge base
+# (2026-08-25): top-1 similarity for genuinely relevant queries sits at
+# 0.50-0.70, while unrelated/novel-machine queries (never seen in the KB)
+# top out around 0.15-0.25 even though they share generic vibration
+# vocabulary. WEAK_THRESHOLD sits above that noise ceiling so genuinely
+# novel cases correctly report "tidak cukup evidence" instead of the LLM
+# grounding a diagnosis in an unrelated record. Re-measure with
+# scripts/evaluate.py-style spot checks whenever the KB grows meaningfully.
+TFIDF_STRONG_THRESHOLD = 0.42
+TFIDF_WEAK_THRESHOLD = 0.28
 EMBEDDING_STRONG_THRESHOLD = 0.55
 EMBEDDING_WEAK_THRESHOLD = 0.25
 

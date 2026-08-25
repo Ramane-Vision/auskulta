@@ -9,3 +9,11 @@ moviepy==1.0.3
 python-dotenv==1.0.1
 openai==1.51.0
 pydantic==2.9.2
+# openai==1.51.0's internal client construction breaks on httpx>=0.28
+# (dropped the `proxies` kwarg it still passes) — pin below that so
+# embedding retrieval doesn't silently fail and fall back to TF-IDF.
+httpx==0.27.2
+
+# dev/test only (httpx already comes in transitively via openai, needed by
+# fastapi.testclient.TestClient)
+pytest==8.3.3

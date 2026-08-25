@@ -70,5 +70,95 @@
     "action_taken": "Pengencangan ulang seluruh baut rangka sesuai torsi standar",
     "downtime_hours": 1,
     "date": "2026-02-11"
+  },
+  {
+    "id": "MR-009",
+    "machine": "Air Compressor AC-02",
+    "symptom": "Suara mendesis tidak normal dari kompresor, disertai getaran ringan pada pipa outlet.",
+    "root_cause": "Kebocoran pada sambungan pipa udara bertekanan",
+    "action_taken": "Penggantian gasket sambungan dan pengujian ulang tekanan sistem",
+    "downtime_hours": 2,
+    "date": "2026-02-27"
+  },
+  {
+    "id": "MR-010",
+    "machine": "Exhaust Fan EF-04",
+    "symptom": "Getaran tidak stabil pada rumah kipas, suara berdengung kasar meningkat saat kecepatan tinggi.",
+    "root_cause": "Blade kipas tidak seimbang akibat penumpukan debu pada satu sisi",
+    "action_taken": "Pembersihan menyeluruh blade dan balancing ulang kipas",
+    "downtime_hours": 3,
+    "date": "2026-04-05"
+  },
+  {
+    "id": "MR-011",
+    "machine": "Centrifugal Pump PU-06",
+    "symptom": "Getaran tinggi pada rumah pompa, disertai suara kasar berulang saat pompa beroperasi penuh.",
+    "root_cause": "Kavitasi akibat tekanan suction yang tidak memadai",
+    "action_taken": "Penyesuaian bukaan katup suction dan pembersihan filter inlet",
+    "downtime_hours": 5,
+    "date": "2026-03-30"
+  },
+  {
+    "id": "MR-012",
+    "machine": "Gearbox GB-09",
+    "symptom": "Getaran periodik dan suara berdecit pada gearbox, semakin terasa setelah mesin beroperasi lebih dari 6 jam.",
+    "root_cause": "Pelumas gearbox habis/menurun kualitasnya sehingga gesekan gigi meningkat",
+    "action_taken": "Penggantian pelumas gearbox dan pemeriksaan level oli rutin",
+    "downtime_hours": 4,
+    "date": "2026-06-02"
+  },
+  {
+    "id": "MR-013",
+    "machine": "Injection Molding IM-08",
+    "symptom": "Gerakan mold tidak stabil disertai getaran tidak normal pada rangka mesin saat proses clamping.",
+    "root_cause": "Tie bar aus sehingga tekanan clamping tidak merata",
+    "action_taken": "Inspeksi dan penggantian tie bar yang aus",
+    "downtime_hours": 12,
+    "date": "2026-05-19"
+  },
+  {
+    "id": "MR-014",
+    "machine": "Boiler Feed Pump BP-01",
+    "symptom": "Suara berdecit tajam dan getaran meningkat pada motor pompa umpan boiler.",
+    "root_cause": "Bearing motor aus akibat suhu operasi yang tinggi dan pelumasan tidak memadai",
+    "action_taken": "Penggantian bearing tahan panas dan penambahan sistem pelumasan otomatis",
+    "downtime_hours": 9,
+    "date": "2026-07-21"
+  },
+  {
+    "id": "MR-015",
+    "machine": "Cooling Tower Fan CT-03",
+    "symptom": "Getaran tidak stabil pada kipas cooling tower, terdengar suara logam berbenturan sesekali.",
+    "root_cause": "Baut pengikat blade kendor sehingga blade sedikit bergeser dari posisi",
+    "action_taken": "Pengencangan ulang baut blade dan pemeriksaan alignment kipas",
+    "downtime_hours": 2,
+    "date": "2026-01-09"
+  },
+  {
+    "id": "MR-016",
+    "machine": "Conveyor Motor M-05",
+    "symptom": "Getaran ringan dan berkala pada motor, muncul hanya saat beban conveyor penuh.",
+    "root_cause": "Belt misalignment ringan akibat beban tidak merata",
+    "action_taken": "Penyetelan ulang posisi belt dan distribusi beban conveyor",
+    "downtime_hours": 1,
+    "date": "2026-08-10"
+  },
+  {
+    "id": "MR-017",
+    "machine": "Hydraulic Press P-07",
+    "symptom": "Getaran tinggi disertai bau terbakar samar pada area motor penggerak pompa hidrolik.",
+    "root_cause": "Motor pompa hidrolik overheat akibat kumparan mulai melemah",
+    "action_taken": "Penggantian motor pompa hidrolik dan pemeriksaan sistem pendingin",
+    "downtime_hours": 14,
+    "date": "2026-06-28"
+  },
+  {
+    "id": "MR-018",
+    "machine": "CNC Machine C-11",
+    "symptom": "Getaran ringan pada spindle saat idle, tidak muncul saat mesin dalam kondisi beban penuh.",
+    "root_cause": "Sisa serpihan material (chip) mengganjal pada dudukan spindle",
+    "action_taken": "Pembersihan dudukan spindle dan pemeriksaan sistem pembuangan chip",
+    "downtime_hours": 1,
+    "date": "2026-03-03"
   }
 ]

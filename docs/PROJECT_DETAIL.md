@@ -53,7 +53,7 @@ Upload 1 video mesin
 ## 4. Kenapa AI, Bukan Sekadar Aturan If-Else?
 
 - Deteksi anomali visual pakai computer vision (optical flow) — tidak bisa digantikan aturan statis karena pola gerakan mesin bervariasi per jenis mesin dan kondisi operasi.
-- Pencarian histori maintenance yang mirip pakai semantic embedding retrieval (OpenAI) sebagai jalur utama — menangkap kemiripan makna, bukan sekadar kecocokan kata — dengan TF-IDF/cosine similarity sebagai fallback offline kalau API tidak tersedia.
+- Pencarian histori maintenance yang mirip pakai semantic embedding retrieval (API kompatibel OpenAI — teruji dengan OpenAI dan Gemini) sebagai jalur utama — menangkap kemiripan makna, bukan sekadar kecocokan kata — dengan TF-IDF/cosine similarity sebagai fallback offline kalau API tidak tersedia.
 - Sintesis diagnosis dari skor + banyak evidence historis ke dalam satu rekomendasi yang koheren adalah tugas reasoning yang pas untuk LLM, dengan instruksi ketat agar hanya menjawab berdasarkan evidence yang diberikan (mengurangi risiko halusinasi).
 
 ## 5. Apa yang Baru (Novelty)
@@ -69,7 +69,7 @@ Kebanyakan solusi predictive maintenance yang umum di kompetisi berhenti di `sen
 - Upload satu video mesin yang sedang beroperasi.
 - Sistem menghitung skor anomali visual secara otomatis (tanpa perlu dataset eksternal — baseline optical flow selalu jalan).
 - Sistem mencoba menghitung skor anomali audio dari track suara video yang sama (best-effort, tetap lanjut kalau gagal/tidak ada audio).
-- Sistem mencari kejadian serupa dari knowledge base histori maintenance (saat ini beberapa record sintetis, dapat diperluas).
+- Sistem mencari kejadian serupa dari knowledge base histori maintenance (saat ini 18 record sintetis, dapat diperluas).
 - LLM memberi satu diagnosis lengkap dengan evidence, urgensi, estimasi downtime, dan rekomendasi tindakan.
 - Semua berjalan lewat satu halaman web sederhana, di-deploy dengan `docker compose up`.
 
@@ -98,7 +98,7 @@ data/
 └── knowledge_base.json   histori maintenance sintetis
 ```
 
-**Tech stack**: Python, FastAPI, OpenCV (vision), librosa + IsolationForest terlatih (audio), OpenAI embeddings + scikit-learn TF-IDF fallback (retrieval), LLM API (OpenAI-compatible, via `.env`), Docker Compose.
+**Tech stack**: Python, FastAPI, OpenCV (vision), librosa + IsolationForest terlatih (audio), embedding API kompatibel OpenAI + scikit-learn TF-IDF fallback (retrieval), LLM API (OpenAI-compatible — teruji end-to-end dengan Gemini via `.env`), Docker Compose.
 
 ## 9. Menjalankan Secara Lokal
 
