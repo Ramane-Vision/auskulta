@@ -38,6 +38,7 @@ app.add_middleware(
 
 FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
 ALLOWED_EXTENSIONS = {".mp4", ".mov", ".avi", ".mkv", ".webm"}
+MAX_FILE_SIZE_BYTES = 100 * 1024 * 1024  # 100MB — keeps demo processing time bounded
 
 
 class VisualScore(BaseModel):
@@ -65,6 +66,13 @@ class EvidenceItem(BaseModel):
     similarity: float
 
 
+class ReasoningModel(BaseModel):
+    visual_evidence: str
+    audio_evidence: str
+    historical_evidence_summary: str
+    confidence: str
+
+
 class HealthReport(BaseModel):
     visual: VisualScore
     audio: Optional[AudioScore]
@@ -74,6 +82,7 @@ class HealthReport(BaseModel):
     estimated_downtime_hours: float
     recommended_action: str
     evidence: list[EvidenceItem]
+    reasoning: ReasoningModel
 
 
 @app.get("/")
@@ -104,8 +113,15 @@ async def analyze(file: UploadFile = File(...)):
     if suffix not in ALLOWED_EXTENSIONS:
         raise HTTPException(status_code=400, detail=f"Format file tidak didukung: {suffix}")
 
+    content = await file.read()
+    if len(content) > MAX_FILE_SIZE_BYTES:
+        raise HTTPException(
+            status_code=413,
+            detail=f"Video terlalu besar (maks {MAX_FILE_SIZE_BYTES // (1024 * 1024)}MB). Gunakan video yang lebih pendek.",
+        )
+
     with NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
-        tmp.write(await file.read())
+        tmp.write(content)
         tmp_path = tmp.name
 
     try:
@@ -152,4 +168,10 @@ async def analyze(file: UploadFile = File(...)):
             )
             for e in diagnosis.evidence
         ],
+        reasoning=ReasoningModel(
+            visual_evidence=diagnosis.reasoning.visual_evidence,
+            audio_evidence=diagnosis.reasoning.audio_evidence,
+            historical_evidence_summary=diagnosis.reasoning.historical_evidence_summary,
+            confidence=diagnosis.reasoning.confidence,
+        ),
     )

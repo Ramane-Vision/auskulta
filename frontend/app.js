@@ -11,6 +11,10 @@ const diagnosisTextEl = document.getElementById("diagnosis-text");
 const downtimeTextEl = document.getElementById("downtime-text");
 const actionTextEl = document.getElementById("action-text");
 const evidenceListEl = document.getElementById("evidence-list");
+const confidenceBadgeEl = document.getElementById("confidence-badge");
+const reasoningVisualEl = document.getElementById("reasoning-visual");
+const reasoningAudioEl = document.getElementById("reasoning-audio");
+const reasoningHistoricalEl = document.getElementById("reasoning-historical");
 const rawJsonEl = document.getElementById("raw-json");
 
 const URGENCY_LABEL = {
@@ -64,6 +68,12 @@ function renderResult(data) {
       ? `Estimasi ${data.estimated_downtime_hours} jam downtime jika tidak segera ditangani.`
       : "Tidak ada estimasi downtime signifikan saat ini.";
   actionTextEl.textContent = data.recommended_action;
+
+  confidenceBadgeEl.textContent = data.reasoning.confidence;
+  confidenceBadgeEl.className = `confidence-badge confidence-${data.reasoning.confidence.replace(/\s+/g, "-")}`;
+  reasoningVisualEl.textContent = data.reasoning.visual_evidence;
+  reasoningAudioEl.textContent = data.reasoning.audio_evidence;
+  reasoningHistoricalEl.textContent = data.reasoning.historical_evidence_summary;
 
   evidenceListEl.innerHTML = "";
   if (data.evidence.length === 0) {
