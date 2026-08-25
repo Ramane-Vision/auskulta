@@ -1,43 +1,98 @@
-# Auskulta — AI Machine Health Monitor
+# Auskulta — AI Machine Diagnosis Copilot
 
-COMPFEST 18 AIC — Smart Manufacturing | Tema: *AI for the Backbone of the Economy*
+COMPFEST 18 AI Innovation Challenge — Tema: *AI for the Backbone of the Economy* — Track: **Smart Manufacturing**
 
-## Masalah
+> "Auskultasi" — teknik dokter memeriksa pasien: melihat gejala, lalu menelusuri rekam medis sebelum memberi diagnosis. Auskulta melakukan hal yang sama untuk mesin pabrik.
 
-Teknisi senior sering bisa mendeteksi kerusakan mesin lebih awal hanya dari **suara** dan **pola gerak** mesin — pengalaman puluhan tahun yang tidak terdokumentasi. Ketika mereka resign atau pensiun, kemampuan diagnosis dini ini ikut hilang. Sementara itu, kerusakan mesin yang tidak terdeteksi lebih awal menyebabkan downtime produksi yang mahal — salah satu penyebab utama inefisiensi produksi di industri manufaktur Indonesia.
+## 1. Problem
 
-## Solusi
+Ketika sebuah mesin pabrik mulai menunjukkan gejala tidak normal (getaran, gerakan tersendat, dsb.), operator biasanya tidak tahu apakah itu tanda kerusakan serius atau sekadar variasi normal. Padahal jawabannya sering kali **sudah pernah tercatat** — di laporan maintenance lama, di SOP, atau di ingatan teknisi senior. Masalahnya, catatan-catatan itu **terfragmentasi**: tersebar di PDF, Excel, WhatsApp, dan kepala orang yang bisa saja resign kapan saja. Akibatnya, setiap gejala baru diperlakukan seperti kasus baru, padahal polanya sering berulang — dan keterlambatan diagnosis berarti downtime produksi yang mahal.
 
-**Auskulta** ("auskultasi" — teknik dokter mendengarkan tubuh pasien dengan stetoskop) adalah AI yang meniru cara teknisi senior mendiagnosis mesin: **melihat** pola gerak/getaran dan **mendengarkan** suara mesin sekaligus, lalu memberikan satu diagnosis kesehatan mesin yang bisa langsung ditindaklanjuti.
+## 2. Target User
 
-**Alur interaksi (sesuai batasan MVP penyisihan):**
+Operator dan teknisi maintenance di pabrik skala menengah yang punya histori data maintenance (laporan, SOP) tapi belum termanfaatkan sebagai basis pengambilan keputusan otomatis.
 
-1. Input tunggal: satu video singkat mesin yang sedang beroperasi (video sudah mengandung frame visual + audio track).
-2. Output tunggal: satu laporan kesehatan mesin — skor anomali visual, skor anomali audio, skor gabungan, tingkat urgensi, diagnosis, estimasi downtime, dan rekomendasi tindakan.
+## 3. Solusi: Auskulta
 
-## Arsitektur AI (3 lapis)
+Auskulta adalah AI copilot yang menggabungkan dua kemampuan:
+
+1. **Melihat** — mendeteksi anomali visual (getaran, gerakan tidak stabil) langsung dari video mesin yang sedang beroperasi.
+2. **Mengingat** — menelusuri histori maintenance mesin (organizational memory) untuk mencari kejadian serupa di masa lalu.
+
+Hasilnya digabung oleh LLM menjadi satu diagnosis yang **di-ground pada evidence nyata** — bukan tebakan bebas — lengkap dengan tingkat urgensi, estimasi downtime, dan rekomendasi tindakan.
+
+**Alur interaksi (1 input → 1 output, sesuai batasan MVP penyisihan AIC 2026):**
 
 ```
-video.mp4
-   │
-   ├── vision.py   → analisis optical flow (indeks getaran) + opsional deteksi objek visual pretrained
-   │                  → visual_anomaly_score (0-1)
-   │
-   ├── audio.py    → ekstraksi audio track → fitur spektral (MFCC, spectral flatness, ZCR)
-   │                  → audio_anomaly_score (0-1)
-   │
-   └── diagnosis.py → fusion kedua skor + LLM reasoning
-                       → diagnosis, urgency, estimated downtime, recommended action
+Upload 1 video mesin
+        │
+        ▼
+┌───────────────────┐
+│  Visual Anomaly    │  optical flow → skor getaran/gerakan tidak normal
+└─────────┬──────────┘
+          ▼
+┌───────────────────┐
+│ Organizational      │  TF-IDF retrieval atas histori maintenance
+│ Memory (RAG ringan)  │  → temukan kejadian mirip di masa lalu
+└─────────┬──────────┘
+          ▼
+┌───────────────────┐
+│  LLM Diagnosis      │  gabungkan skor + evidence → satu diagnosis
+└─────────┬──────────┘
+          ▼
+1 Laporan Kesehatan Mesin
+(skor risiko, urgensi, diagnosis, evidence, rekomendasi tindakan)
 ```
 
-Baik `vision.py` maupun `audio.py` punya **baseline heuristik yang selalu berjalan tanpa dataset eksternal** (optical flow untuk visual, fitur spektral untuk audio), dengan **upgrade path** ke model terlatih:
+## 4. Kenapa AI, Bukan Sekadar Aturan If-Else?
 
-- `models/visual_event_detector.pt` — pretrained/fine-tuned YOLO untuk deteksi kejadian visual spesifik (asap, percikan, dsb). Jika file ini ada, hasil deteksinya otomatis digabung ke skor visual.
-- `models/audio_anomaly_model.joblib` — model anomaly detection (mis. IsolationForest) yang dilatih di atas dataset publik **MIMII** (Malfunctioning Industrial Machine Investigation and Inspection). Jika file ini ada, dipakai menggantikan heuristik baseline.
+- Deteksi anomali visual pakai computer vision (optical flow) — tidak bisa digantikan aturan statis karena pola gerakan mesin bervariasi per jenis mesin dan kondisi operasi.
+- Pencarian histori maintenance yang mirip pakai retrieval berbasis kemiripan makna teks (TF-IDF/cosine similarity), bukan pencarian keyword kaku — dua laporan bisa membahas masalah yang sama dengan kata-kata berbeda.
+- Sintesis diagnosis dari skor + banyak evidence historis ke dalam satu rekomendasi yang koheren adalah tugas reasoning yang pas untuk LLM, dengan instruksi ketat agar hanya menjawab berdasarkan evidence yang diberikan (mengurangi risiko halusinasi).
 
-Ini memastikan sistem **selalu bisa didemokan end-to-end**, sekaligus terbuka untuk ditingkatkan akurasinya begitu model/dataset selesai disiapkan.
+## 5. Apa yang Baru (Novelty)
 
-## Menjalankan Secara Lokal
+Kebanyakan solusi predictive maintenance yang umum di kompetisi berhenti di `sensor → ML → prediksi rusak`, atau computer-vision defect detection generik. Auskulta berbeda karena:
+
+- Menggabungkan **dua modalitas AI** (vision + retrieval-augmented reasoning) dalam satu pipeline, bukan satu model tunggal.
+- Diagnosis **selalu bisa ditelusuri sumbernya** (evidence citation) — bukan kotak hitam. Ini penting untuk kepercayaan teknisi di lapangan.
+- Tidak butuh sensor IoT atau kamera industri khusus — cukup video biasa (bahkan dari HP), jadi biaya adopsi rendah untuk pabrik skala menengah yang belum punya infrastruktur IoT.
+
+## 6. MVP yang Didemokan
+
+- Upload satu video mesin yang sedang beroperasi.
+- Sistem menghitung skor anomali visual secara otomatis (tanpa perlu dataset eksternal — baseline optical flow selalu jalan).
+- Sistem mencari kejadian serupa dari knowledge base histori maintenance (saat ini 8 record sintetis, dapat diperluas).
+- LLM memberi satu diagnosis lengkap dengan evidence, urgensi, estimasi downtime, dan rekomendasi tindakan.
+- Semua berjalan lewat satu halaman web sederhana, di-deploy dengan `docker compose up`.
+
+## 7. Dampak & Business Value
+
+- **Waktu diagnosis** yang tadinya butuh mencari-cari laporan lama atau menunggu teknisi senior, dipangkas jadi hitungan detik.
+- **Knowledge retention** — pengetahuan dari teknisi senior yang sudah resign/pensiun tetap bisa diakses lewat histori maintenance yang terstruktur.
+- **Pengurangan downtime** — deteksi dini dari pola visual + evidence historis memungkinkan tindakan preventif sebelum kerusakan meluas.
+- **Target pembeli**: divisi maintenance pabrik manufaktur skala menengah (tekstil, F&B, elektronik) yang punya arsip laporan maintenance tapi belum memanfaatkannya secara digital.
+
+## 8. Arsitektur Teknis
+
+```
+backend/
+├── main.py        FastAPI app, 1 endpoint: POST /api/analyze
+├── vision.py       deteksi anomali visual (OpenCV optical flow)
+├── knowledge.py    organizational memory: TF-IDF retrieval atas histori maintenance
+├── diagnosis.py    fusion visual + evidence → LLM diagnosis (dengan fallback rule-based)
+└── config.py       konfigurasi env (LLM API key, dsb.)
+frontend/
+├── index.html      1 halaman: upload video → lihat laporan
+├── app.js
+└── style.css
+data/
+└── knowledge_base.json   histori maintenance sintetis (8 record awal)
+```
+
+**Tech stack**: Python, FastAPI, OpenCV (vision), scikit-learn (TF-IDF retrieval), LLM API (OpenAI-compatible, via `.env`), Docker Compose.
+
+## 9. Menjalankan Secara Lokal
 
 ```bash
 cp .env.example .env
@@ -46,34 +101,33 @@ cp .env.example .env
 docker compose up --build
 ```
 
-Buka `http://localhost:8000` di browser, upload video mesin, klik "Analisis Video".
+Buka `http://localhost:8000`, upload video mesin, klik "Analisis Video".
 
-## API
+## 10. API
 
-`POST /api/analyze` — multipart form-data dengan field `file` (video: mp4/mov/avi/mkv/webm).
-
-Response:
+`POST /api/analyze` — multipart form-data, field `file` (video: mp4/mov/avi/mkv/webm).
 
 ```json
 {
-  "visual": { "score": 0.42, "vibration_index": 0.31, "detected_events": [], "notes": "..." },
-  "audio": { "score": 0.61, "spectral_flatness": 0.12, "zero_crossing_rate": 0.08, "notes": "..." },
-  "combined_score": 0.53,
-  "urgency": "sedang",
-  "diagnosis": "...",
+  "visual": { "score": 0.62, "vibration_index": 0.41, "detected_events": [], "notes": "..." },
+  "risk_score": 0.62,
+  "urgency": "tinggi",
+  "diagnosis": "Kemungkinan bearing degradation, mirip dengan kasus MR-001 dan MR-007...",
   "estimated_downtime_hours": 24,
-  "recommended_action": "..."
+  "recommended_action": "Jadwalkan inspeksi bearing dalam 24 jam ke depan.",
+  "evidence": [
+    { "id": "MR-001", "machine": "Conveyor Motor M-03", "symptom": "...", "root_cause": "Bearing degradation...", "action_taken": "...", "downtime_hours": 6, "date": "2026-03-14", "similarity": 0.71 }
+  ]
 }
 ```
 
-## Tech Stack
+## 11. Roadmap Setelah Penyisihan (jika lolos)
 
-- Backend: Python, FastAPI
-- Vision: OpenCV (optical flow), opsional YOLO (ultralytics)
-- Audio: librosa (fitur spektral/MFCC), opsional IsolationForest terlatih di dataset MIMII
-- Reasoning: LLM API (OpenAI-compatible endpoint, dikonfigurasi via `.env`)
-- Deployment: Docker Compose
+- Perluas knowledge base dari data maintenance riil (bukan sintetis).
+- Tambahkan pretrained detector visual untuk kejadian spesifik (asap, percikan) — hook sudah disiapkan di `vision.py`.
+- Ganti retrieval TF-IDF dengan embedding model kalau volume data bertambah besar.
+- Tambahkan fitur "Knowledge Gap Detection" — menandai ketika sebuah gejala tidak punya histori sama sekali, sebagai sinyal SOP baru perlu dibuat.
 
-## Tim
+## 12. Tim
 
-_(isi nama tim & anggota di sini)_
+_(isi nama tim & pembagian peran di sini)_
