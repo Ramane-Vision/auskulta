@@ -1,0 +1,11 @@
+.git
+__pycache__
+*.pyc
+.venv
+venv
+.env
+docs
+*.mp4
+*.mov
+*.avi
+*.wav
