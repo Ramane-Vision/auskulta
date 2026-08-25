@@ -56,7 +56,7 @@ docker compose up --build
 > "...sistem akan bilang jujur bahwa ini kemungkinan kasus baru, bukan memaksakan jawaban. Ini kami desain sengaja di level kode, bukan cuma instruksi ke LLM, supaya diagnosis yang diberikan selalu bisa dipertanggungjawabkan."
 
 ### [5:15 – 6:15] Jujur soal keterbatasan saat ini
-> "Kami juga ingin jujur soal kondisi sistem saat ini. Deteksi visual masih menggunakan baseline optical flow, deteksi audio masih fitur spektral — keduanya belum model machine learning yang dilatih khusus. [ISI JIKA SUDAH: Kami sudah mulai melatih model audio menggunakan dataset publik MIMII]. Knowledge base kami saat ini berisi [ISI: jumlah] kasus, masih data yang kami susun sendiri berdasarkan skenario realistis, belum data pabrik sungguhan. Semua ini sudah kami rencanakan sebagai roadmap pengembangan lanjutan yang kami jelaskan di proposal."
+> "Kami juga ingin jujur soal kondisi sistem saat ini. Deteksi visual masih menggunakan baseline optical flow yang kami kalibrasi manual. Untuk audio, kami berhasil melatih model IsolationForest menggunakan 500 sampel suara mesin nyata dari dataset DCASE 2023 Task 2 — penerus akademik dari MIMII, karena dataset MIMII asli terlalu besar untuk diunduh dalam waktu kami. Knowledge base kami saat ini berisi 8 kasus, masih data yang kami susun sendiri berdasarkan skenario realistis, belum data pabrik sungguhan. Semua ini sudah kami rencanakan sebagai roadmap pengembangan lanjutan yang kami jelaskan di proposal."
 
 ### [6:15 – 7:00] Penutup
 > "Itu adalah Proof of Work dari Auskulta — sistem yang benar-benar berjalan end-to-end, dari video mesin sampai diagnosis yang di-ground pada evidence nyata. Terima kasih."
