@@ -48,6 +48,8 @@ Diagnosis akhir dihasilkan oleh LLM dan **selalu di-ground pada evidence histori
 - ✅ Deteksi anomali audio dari track suara video — sinyal tambahan, gagal dengan aman (graceful degradation)
 - ✅ Organizational memory — retrieval histori maintenance berbasis kemiripan teks (TF-IDF)
 - ✅ Diagnosis LLM yang di-ground pada evidence, lengkap dengan urgensi, estimasi downtime, dan rekomendasi tindakan
+- ✅ Explainable reasoning trace ("Kenapa diagnosis ini?") — evidence visual, audio, dan historis ditampilkan terpisah dengan tingkat confidence
+- ✅ Safety gate berbasis kode: sistem menolak memberi diagnosis spesifik kalau evidence historis tidak cukup mirip, alih-alih membiarkan LLM mengarang
 - ✅ Fallback rule-based — sistem tetap memberi hasil meski LLM API tidak tersedia
 - ✅ Satu alur interaksi sederhana: upload video → lihat laporan kesehatan mesin
 - ✅ Deployment satu perintah lewat Docker Compose
@@ -143,11 +145,14 @@ auskulta/
 
 ## 🗺️ Roadmap
 
-- [ ] Latih model audio anomaly detection di dataset publik MIMII
+MVP penyisihan ini sengaja dibatasi ke fondasi yang benar-benar bekerja. Peningkatan lebih lanjut direncanakan berlanjut di **Hackathon 10 jam babak final** (sesuai alur kompetisi AIC COMPFEST 18), bukan dikejar semua malam ini:
+
+- [ ] Latih model audio anomaly detection di dataset publik MIMII secara penuh (bukan subset)
 - [ ] Tambahkan pretrained visual event detector (asap, percikan)
-- [ ] Perluas knowledge base dengan data maintenance riil
-- [ ] Ganti TF-IDF dengan embedding model semantik
-- [ ] Fitur Knowledge Gap Detection
+- [ ] Perluas knowledge base dengan data maintenance riil dari mitra industri
+- [ ] Ganti TF-IDF dengan embedding model semantik untuk retrieval yang lebih akurat
+- [ ] Fitur Knowledge Gap Detection — deteksi gejala yang belum punya histori sama sekali
+- [ ] Evaluation benchmark & kalibrasi threshold berbasis data berlabel
 
 Detail lengkap: [`docs/PROJECT_DETAIL.md`](docs/PROJECT_DETAIL.md#12-roadmap-setelah-penyisihan-jika-lolos).
 
