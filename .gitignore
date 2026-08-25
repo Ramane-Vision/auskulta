@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+*.mp4
+*.mov
+*.avi
+*.wav
+models/*.pt
+models/*.joblib
+models/*.h5
+datasets/
+.DS_Store

@@ -1,0 +1,11 @@
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+python-multipart==0.0.9
+opencv-python-headless==4.10.0.84
+numpy==1.26.4
+librosa==0.10.2.post1
+scikit-learn==1.5.1
+moviepy==1.0.3
+python-dotenv==1.0.1
+openai==1.51.0
+pydantic==2.9.2
