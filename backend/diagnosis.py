@@ -22,7 +22,7 @@ from typing import List, Optional
 from openai import OpenAI
 
 import config
-from knowledge import EvidenceRecord, retrieve_evidence
+from knowledge import EvidenceRecord, confidence_thresholds, retrieve_evidence
 from vision import VisualAnomalyResult
 
 try:
@@ -30,11 +30,9 @@ try:
 except ImportError:  # audio deps not installed in this environment
     AudioAnomalyResult = None  # type: ignore
 
-# Evidence-confidence thresholds on TF-IDF cosine similarity of the top
-# retrieved record. These are starting points — tune them once the team has
-# tested retrieval against the real demo knowledge base and scenario wording.
-EVIDENCE_STRONG_THRESHOLD = 0.30
-EVIDENCE_WEAK_THRESHOLD = 0.10
+# Evidence-confidence thresholds now come from knowledge.py's
+# confidence_thresholds(method) since TF-IDF and embedding similarity live
+# on different scales — see that module for the actual values.
 
 SYSTEM_PROMPT = """Kamu adalah asisten diagnosa mesin industri untuk aplikasi bernama Auskulta.
 Kamu HANYA dipanggil ketika sistem sudah memastikan ada evidence historis yang
@@ -95,9 +93,12 @@ def _combine_score(visual: VisualAnomalyResult, audio: Optional["AudioAnomalyRes
 
 
 def _evidence_confidence(evidence: List[EvidenceRecord]) -> str:
-    if not evidence or evidence[0].similarity < EVIDENCE_WEAK_THRESHOLD:
+    if not evidence:
         return "tidak cukup evidence"
-    if evidence[0].similarity < EVIDENCE_STRONG_THRESHOLD:
+    strong, weak = confidence_thresholds(evidence[0].method)
+    if evidence[0].similarity < weak:
+        return "tidak cukup evidence"
+    if evidence[0].similarity < strong:
         return "sedang"
     return "tinggi"
 
