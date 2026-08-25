@@ -10,6 +10,12 @@ Format nama file: `COMPFEST 18 AIC: PROOF OF WORK - [Nama Tim] - Auskulta`
 
 Tujuan video ini BUKAN meyakinkan orang bahwa produknya keren — tujuannya membuktikan sistem ini benar-benar ada dan berjalan. Boleh tunjukkan bagian yang belum sempurna, itu justru sesuai instruksi rulebook.
 
+> ⚠️ **ATURAN TEKNIS WAJIB (Auskulta = software only, bukan hardware-integrated):**
+> - Wajib **double screen**: terminal DAN aplikasi (browser) terlihat BERSAMAAN di layar, dengan **timestamp** tampil.
+> - Boleh **fast-forward** untuk melewati bagian nunggu loading, dan boleh tambah **voice-over**.
+> - **DILARANG KERAS memotong (cut) video atau melakukan editing lain.** Ini harus rekam sekali jalan (continuous take). Kalau salah ngomong di tengah, ulang dari awal — bukan di-cut.
+> - Latihan dulu 1-2 kali sebelum rekam final, supaya tidak perlu banyak ulang.
+
 ### [0:00 – 0:25] Intro
 > "Halo, kami [ISI: Nama Tim], dan ini adalah Proof of Work untuk Auskulta — AI Machine Diagnosis Copilot untuk COMPFEST 18 AI Innovation Challenge, kategori Smart Manufacturing. Di video ini kami akan tunjukkan sistem kami benar-benar berjalan, dari kode sampai hasil akhir."
 
