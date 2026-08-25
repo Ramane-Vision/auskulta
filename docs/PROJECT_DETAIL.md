@@ -38,8 +38,8 @@ Upload 1 video mesin
           └───────────┬───────────────┘
                        ▼
           ┌────────────────────────┐
-          │ Organizational Memory   │  TF-IDF retrieval atas histori maintenance
-          │ (RAG ringan)             │  → temukan kejadian mirip di masa lalu
+          │ Organizational Memory   │  Semantic embedding retrieval (utama)
+          │ (RAG ringan)             │  + TF-IDF cosine similarity (fallback)
           └────────────┬────────────┘
                         ▼
           ┌────────────────────────┐
@@ -53,7 +53,7 @@ Upload 1 video mesin
 ## 4. Kenapa AI, Bukan Sekadar Aturan If-Else?
 
 - Deteksi anomali visual pakai computer vision (optical flow) — tidak bisa digantikan aturan statis karena pola gerakan mesin bervariasi per jenis mesin dan kondisi operasi.
-- Pencarian histori maintenance yang mirip pakai retrieval berbasis kemiripan makna teks (TF-IDF/cosine similarity), bukan pencarian keyword kaku — dua laporan bisa membahas masalah yang sama dengan kata-kata berbeda.
+- Pencarian histori maintenance yang mirip pakai semantic embedding retrieval (OpenAI) sebagai jalur utama — menangkap kemiripan makna, bukan sekadar kecocokan kata — dengan TF-IDF/cosine similarity sebagai fallback offline kalau API tidak tersedia.
 - Sintesis diagnosis dari skor + banyak evidence historis ke dalam satu rekomendasi yang koheren adalah tugas reasoning yang pas untuk LLM, dengan instruksi ketat agar hanya menjawab berdasarkan evidence yang diberikan (mengurangi risiko halusinasi).
 
 ## 5. Apa yang Baru (Novelty)
@@ -87,7 +87,7 @@ backend/
 ├── main.py        FastAPI app, 1 endpoint: POST /api/analyze
 ├── vision.py       deteksi anomali visual (OpenCV optical flow) — sinyal utama
 ├── audio.py        deteksi anomali audio (fitur spektral) — sinyal sekunder, best-effort
-├── knowledge.py    organizational memory: TF-IDF retrieval atas histori maintenance
+├── knowledge.py    organizational memory: embedding retrieval (utama) + TF-IDF (fallback)
 ├── diagnosis.py    fusion visual+audio+evidence → LLM diagnosis (dengan fallback rule-based)
 └── config.py       konfigurasi env (LLM API key, dsb.)
 frontend/
@@ -98,7 +98,7 @@ data/
 └── knowledge_base.json   histori maintenance sintetis
 ```
 
-**Tech stack**: Python, FastAPI, OpenCV (vision), librosa (audio), scikit-learn (TF-IDF retrieval), LLM API (OpenAI-compatible, via `.env`), Docker Compose.
+**Tech stack**: Python, FastAPI, OpenCV (vision), librosa (audio), OpenAI embeddings + scikit-learn TF-IDF fallback (retrieval), LLM API (OpenAI-compatible, via `.env`), Docker Compose.
 
 ## 9. Menjalankan Secara Lokal
 
@@ -134,18 +134,19 @@ Buka `http://localhost:8000`, upload video mesin, klik "Analisis Video".
 
 - Skor vision & audio berbasis heuristik yang belum dikalibrasi terhadap dataset berlabel — perlu validasi terhadap rekaman mesin sungguhan.
 - Optical flow dapat salah membaca goyangan kamera sebagai anomali mesin — rekaman sebaiknya menggunakan tripod/penyangga stabil.
-- Retrieval TF-IDF berbasis kecocokan kata, bukan makna — sinonim/parafrasa antara gejala dan catatan histori mungkin tidak cocok.
+- Jalur fallback retrieval (TF-IDF, aktif kalau embedding API tidak tersedia) berbasis kecocokan kata, bukan makna — sinonim/parafrasa antara gejala dan catatan histori mungkin tidak cocok di jalur ini.
+- Deteksi visual api/asap masih heuristik warna (HSV), bukan model terlatih — bisa salah pada pencahayaan warna hangat yang tidak terkait anomali.
 - Knowledge base masih berisi data sintetis, belum data maintenance riil dari pabrik.
 - Belum ada automated test suite.
 
 ## 12. Roadmap Setelah Penyisihan (jika lolos)
 
 - Perluas knowledge base dari data maintenance riil (bukan sintetis).
-- Tambahkan pretrained detector visual untuk kejadian spesifik (asap, percikan) — hook sudah disiapkan di `vision.py`.
-- Tingkatkan akurasi audio dengan melatih model anomaly detection (IsolationForest/autoencoder) di dataset publik MIMII — hook sudah disiapkan di `audio.py` (`models/audio_anomaly_model.joblib`).
-- Ganti retrieval TF-IDF dengan embedding model kalau volume data bertambah besar.
+- Ganti heuristik warna api/asap dengan model deteksi objek visual terlatih (berlisensi jelas — MIT/Apache, bukan AGPL) atau dilatih sendiri oleh tim.
+- Tingkatkan akurasi audio dengan melatih model anomaly detection (IsolationForest/autoencoder) di dataset publik MIMII — hook sudah disiapkan di `audio.py` (`models/audio_anomaly_model.joblib`). Percobaan download dataset penuh terkendala bandwidth pada tahap penyisihan.
+- Tingkatkan jalur fallback retrieval (mis. embedding lokal ringan) supaya kualitas tidak terlalu turun saat API eksternal tidak tersedia.
 - Tambahkan fitur "Knowledge Gap Detection" — menandai ketika sebuah gejala tidak punya histori sama sekali, sebagai sinyal SOP baru perlu dibuat.
-- Tambahkan automated test suite dan validasi kalibrasi skor terhadap dataset berlabel.
+- Tambahkan automated test suite dan evaluation benchmark berbasis dataset berlabel (harness sudah disiapkan di `backend/scripts/evaluate.py`).
 
 ## 13. Tim
 

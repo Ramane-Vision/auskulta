@@ -169,7 +169,7 @@ MVP penyisihan ini sengaja dibatasi ke fondasi yang benar-benar bekerja. Peningk
 - [ ] Latih model audio anomaly detection di dataset publik MIMII secara penuh (bukan subset)
 - [ ] Tambahkan pretrained visual event detector (asap, percikan)
 - [ ] Perluas knowledge base dengan data maintenance riil dari mitra industri
-- [ ] Ganti TF-IDF dengan embedding model semantik untuk retrieval yang lebih akurat
+- [x] ~~Ganti TF-IDF dengan embedding model semantik~~ — sudah aktif (jalur utama), TF-IDF kini jadi fallback
 - [ ] Fitur Knowledge Gap Detection — deteksi gejala yang belum punya histori sama sekali
 - [ ] Evaluation benchmark & kalibrasi threshold berbasis data berlabel
 
