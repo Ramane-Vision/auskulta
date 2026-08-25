@@ -18,6 +18,10 @@
 
 ## 📖 Tentang Auskulta
 
+Auskulta merepresentasikan solusi diagnosis prediktif yang dirancang untuk operasional manufaktur yang mencari deteksi dini kerusakan mesin. Platform ini mengintegrasikan computer vision, analisis audio, dan retrieval-augmented reasoning berbasis histori maintenance industri.
+
+Sistem beroperasi melalui arsitektur berlapis yang menggabungkan sensing multimodal di sisi input dengan pemrosesan AI di sisi backend. Pengguna mengunggah video mesin yang sedang beroperasi, yang dianalisis secara paralel oleh modul deteksi anomali visual (OpenCV) dan audio (fitur spektral). Sinyal gabungan ini kemudian dicocokkan terhadap knowledge base histori maintenance melalui semantic embedding retrieval, sebelum dikirim ke LLM untuk menghasilkan diagnosis yang di-ground pada evidence nyata — bukan jawaban bebas yang berisiko halusinasi.
+
 > *"Auskultasi"* — teknik dokter memeriksa pasien: melihat gejala, mendengarkan tubuh, lalu menelusuri rekam medis sebelum memberi diagnosis.
 
 Ketika mesin pabrik mulai menunjukkan gejala tidak normal, jawabannya sering kali **sudah pernah tercatat** — di laporan maintenance lama, SOP, atau ingatan teknisi senior — tapi terfragmentasi dan sulit ditelusuri. **Auskulta** adalah AI copilot yang menggabungkan tiga kemampuan sekaligus untuk memberi diagnosis kesehatan mesin yang cepat dan bisa dipertanggungjawabkan:
