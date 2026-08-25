@@ -14,10 +14,11 @@ Operator dan teknisi maintenance di pabrik skala menengah yang punya histori dat
 
 ## 3. Solusi: Auskulta
 
-Auskulta adalah AI copilot yang menggabungkan dua kemampuan:
+Auskulta adalah AI copilot yang menggabungkan tiga kemampuan:
 
-1. **Melihat** — mendeteksi anomali visual (getaran, gerakan tidak stabil) langsung dari video mesin yang sedang beroperasi.
-2. **Mengingat** — menelusuri histori maintenance mesin (organizational memory) untuk mencari kejadian serupa di masa lalu.
+1. **Melihat** — mendeteksi anomali visual (getaran, gerakan tidak stabil) langsung dari video mesin yang sedang beroperasi. Sinyal utama, selalu dihitung, tidak butuh dataset eksternal.
+2. **Mendengarkan** — menganalisis suara mesin dari audio track video yang sama untuk sinyal anomali tambahan. Sinyal sekunder best-effort: kalau gagal (mis. video tanpa audio, dependency tidak lengkap), sistem otomatis lanjut dengan sinyal visual saja tanpa gagal.
+3. **Mengingat** — menelusuri histori maintenance mesin (organizational memory) untuk mencari kejadian serupa di masa lalu.
 
 Hasilnya digabung oleh LLM menjadi satu diagnosis yang **di-ground pada evidence nyata** — bukan tebakan bebas — lengkap dengan tingkat urgensi, estimasi downtime, dan rekomendasi tindakan.
 
@@ -27,21 +28,24 @@ Hasilnya digabung oleh LLM menjadi satu diagnosis yang **di-ground pada evidence
 Upload 1 video mesin
         │
         ▼
-┌───────────────────┐
-│  Visual Anomaly    │  optical flow → skor getaran/gerakan tidak normal
-└─────────┬──────────┘
-          ▼
-┌───────────────────┐
-│ Organizational      │  TF-IDF retrieval atas histori maintenance
-│ Memory (RAG ringan)  │  → temukan kejadian mirip di masa lalu
-└─────────┬──────────┘
-          ▼
-┌───────────────────┐
-│  LLM Diagnosis      │  gabungkan skor + evidence → satu diagnosis
-└─────────┬──────────┘
-          ▼
-1 Laporan Kesehatan Mesin
-(skor risiko, urgensi, diagnosis, evidence, rekomendasi tindakan)
+┌────────────────────┐     ┌────────────────────┐
+│  Visual Anomaly     │     │  Audio Anomaly      │
+│  (optical flow,      │     │  (spektral, best-    │
+│   selalu jalan)       │     │   effort, opsional)   │
+└─────────┬───────────┘     └─────────┬───────────┘
+          └───────────┬───────────────┘
+                       ▼
+          ┌────────────────────────┐
+          │ Organizational Memory   │  TF-IDF retrieval atas histori maintenance
+          │ (RAG ringan)             │  → temukan kejadian mirip di masa lalu
+          └────────────┬────────────┘
+                        ▼
+          ┌────────────────────────┐
+          │  LLM Diagnosis           │  gabungkan skor + evidence → satu diagnosis
+          └────────────┬────────────┘
+                        ▼
+          1 Laporan Kesehatan Mesin
+(skor visual, skor audio, skor risiko gabungan, urgensi, diagnosis, evidence, rekomendasi)
 ```
 
 ## 4. Kenapa AI, Bukan Sekadar Aturan If-Else?
@@ -54,7 +58,7 @@ Upload 1 video mesin
 
 Kebanyakan solusi predictive maintenance yang umum di kompetisi berhenti di `sensor → ML → prediksi rusak`, atau computer-vision defect detection generik. Auskulta berbeda karena:
 
-- Menggabungkan **dua modalitas AI** (vision + retrieval-augmented reasoning) dalam satu pipeline, bukan satu model tunggal.
+- Menggabungkan **tiga modalitas AI** (vision + audio + retrieval-augmented reasoning) dalam satu pipeline, bukan satu model tunggal.
 - Diagnosis **selalu bisa ditelusuri sumbernya** (evidence citation) — bukan kotak hitam. Ini penting untuk kepercayaan teknisi di lapangan.
 - Tidak butuh sensor IoT atau kamera industri khusus — cukup video biasa (bahkan dari HP), jadi biaya adopsi rendah untuk pabrik skala menengah yang belum punya infrastruktur IoT.
 
@@ -62,6 +66,7 @@ Kebanyakan solusi predictive maintenance yang umum di kompetisi berhenti di `sen
 
 - Upload satu video mesin yang sedang beroperasi.
 - Sistem menghitung skor anomali visual secara otomatis (tanpa perlu dataset eksternal — baseline optical flow selalu jalan).
+- Sistem mencoba menghitung skor anomali audio dari track suara video yang sama (best-effort, tetap lanjut kalau gagal/tidak ada audio).
 - Sistem mencari kejadian serupa dari knowledge base histori maintenance (saat ini 8 record sintetis, dapat diperluas).
 - LLM memberi satu diagnosis lengkap dengan evidence, urgensi, estimasi downtime, dan rekomendasi tindakan.
 - Semua berjalan lewat satu halaman web sederhana, di-deploy dengan `docker compose up`.
@@ -78,9 +83,10 @@ Kebanyakan solusi predictive maintenance yang umum di kompetisi berhenti di `sen
 ```
 backend/
 ├── main.py        FastAPI app, 1 endpoint: POST /api/analyze
-├── vision.py       deteksi anomali visual (OpenCV optical flow)
+├── vision.py       deteksi anomali visual (OpenCV optical flow) — sinyal utama
+├── audio.py        deteksi anomali audio (fitur spektral) — sinyal sekunder, best-effort
 ├── knowledge.py    organizational memory: TF-IDF retrieval atas histori maintenance
-├── diagnosis.py    fusion visual + evidence → LLM diagnosis (dengan fallback rule-based)
+├── diagnosis.py    fusion visual+audio+evidence → LLM diagnosis (dengan fallback rule-based)
 └── config.py       konfigurasi env (LLM API key, dsb.)
 frontend/
 ├── index.html      1 halaman: upload video → lihat laporan
@@ -110,7 +116,8 @@ Buka `http://localhost:8000`, upload video mesin, klik "Analisis Video".
 ```json
 {
   "visual": { "score": 0.62, "vibration_index": 0.41, "detected_events": [], "notes": "..." },
-  "risk_score": 0.62,
+  "audio": { "score": 0.48, "spectral_flatness": 0.11, "zero_crossing_rate": 0.07, "notes": "..." },
+  "risk_score": 0.57,
   "urgency": "tinggi",
   "diagnosis": "Kemungkinan bearing degradation, mirip dengan kasus MR-001 dan MR-007...",
   "estimated_downtime_hours": 24,
@@ -125,6 +132,7 @@ Buka `http://localhost:8000`, upload video mesin, klik "Analisis Video".
 
 - Perluas knowledge base dari data maintenance riil (bukan sintetis).
 - Tambahkan pretrained detector visual untuk kejadian spesifik (asap, percikan) — hook sudah disiapkan di `vision.py`.
+- Tingkatkan akurasi audio dengan melatih model anomaly detection (IsolationForest/autoencoder) di dataset publik MIMII — hook sudah disiapkan di `audio.py` (`models/audio_anomaly_model.joblib`).
 - Ganti retrieval TF-IDF dengan embedding model kalau volume data bertambah besar.
 - Tambahkan fitur "Knowledge Gap Detection" — menandai ketika sebuah gejala tidak punya histori sama sekali, sebagai sinyal SOP baru perlu dibuat.
 
