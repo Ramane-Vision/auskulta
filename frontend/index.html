@@ -10,7 +10,7 @@
   <main class="container">
     <header>
       <h1>Auskulta</h1>
-      <p class="subtitle">AI yang "mendengar &amp; melihat" kondisi mesin — upload satu video, dapatkan satu diagnosis kesehatan mesin.</p>
+      <p class="subtitle">AI yang mendiagnosis kesehatan mesin seperti dokter — melihat gejala visual, lalu menelusuri rekam medis mesin (histori maintenance) sebelum memberi diagnosis.</p>
     </header>
 
     <section class="upload-card">
@@ -23,17 +23,9 @@
       <div class="urgency-badge" id="urgency-badge"></div>
 
       <div class="score-row">
-        <div class="score-box">
-          <span class="score-label">Skor Visual</span>
-          <span class="score-value" id="visual-score">-</span>
-        </div>
-        <div class="score-box">
-          <span class="score-label">Skor Audio</span>
-          <span class="score-value" id="audio-score">-</span>
-        </div>
         <div class="score-box combined">
-          <span class="score-label">Skor Gabungan</span>
-          <span class="score-value" id="combined-score">-</span>
+          <span class="score-label">Skor Risiko Visual</span>
+          <span class="score-value" id="visual-score">-</span>
         </div>
       </div>
 
@@ -50,6 +42,11 @@
       <div class="diagnosis-block">
         <h2>Rekomendasi Tindakan</h2>
         <p id="action-text">-</p>
+      </div>
+
+      <div class="diagnosis-block">
+        <h2>Evidence dari Histori Maintenance</h2>
+        <ul id="evidence-list" class="evidence-list"></ul>
       </div>
 
       <details class="raw-details">

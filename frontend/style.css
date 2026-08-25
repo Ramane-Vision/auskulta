@@ -130,6 +130,24 @@ button:disabled {
   margin-bottom: 4px;
 }
 
+.evidence-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.evidence-list li {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
 .raw-details {
   margin-top: 24px;
   color: var(--muted);
