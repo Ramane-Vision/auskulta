@@ -46,7 +46,7 @@ Diagnosis akhir dihasilkan oleh LLM dan **selalu di-ground pada evidence histori
 
 - ✅ Deteksi anomali visual dari video (optical flow) — tanpa perlu dataset eksternal
 - ✅ Deteksi anomali audio dari track suara video — sinyal tambahan, gagal dengan aman (graceful degradation)
-- ✅ Organizational memory — retrieval histori maintenance berbasis kemiripan teks (TF-IDF)
+- ✅ Organizational memory — retrieval histori maintenance berbasis semantic embedding (OpenAI), otomatis fallback ke TF-IDF kalau API tidak tersedia
 - ✅ Diagnosis LLM yang di-ground pada evidence, lengkap dengan urgensi, estimasi downtime, dan rekomendasi tindakan
 - ✅ Explainable reasoning trace ("Kenapa diagnosis ini?") — evidence visual, audio, dan historis ditampilkan terpisah dengan tingkat confidence
 - ✅ Safety gate berbasis kode: sistem menolak memberi diagnosis spesifik kalau evidence historis tidak cukup mirip, alih-alih membiarkan LLM mengarang
@@ -67,7 +67,7 @@ Upload 1 video mesin
          └───────────┬────────────┘
                       ▼
         ┌──────────────────────────┐
-        │  Organizational Memory    │  TF-IDF retrieval atas histori maintenance
+        │  Organizational Memory    │  Semantic embedding retrieval (fallback: TF-IDF)
         └─────────────┬────────────┘
                        ▼
         ┌──────────────────────────┐
@@ -84,13 +84,16 @@ Detail lengkap tiap komponen ada di [`docs/PROJECT_DETAIL.md`](docs/PROJECT_DETA
 | Layer | Teknologi |
 |---|---|
 | Backend | Python, FastAPI |
+| Frontend | Next.js, TypeScript, Tailwind CSS |
 | Vision | OpenCV (optical flow) |
 | Audio | librosa (fitur spektral) |
-| Retrieval | scikit-learn (TF-IDF + cosine similarity) |
+| Retrieval | OpenAI embeddings (semantic), fallback ke scikit-learn TF-IDF |
 | Reasoning | LLM API (OpenAI-compatible) |
-| Deployment | Docker Compose |
+| Deployment | Docker Compose (backend), Next.js dev server (frontend) |
 
 ## 🚀 Quick Start
+
+**Backend:**
 
 ```bash
 git clone https://github.com/Ramane-Vision/auskulta.git
@@ -101,7 +104,18 @@ cp .env.example .env
 docker compose up --build
 ```
 
-Buka [`http://localhost:8000`](http://localhost:8000), upload video mesin, klik **Analisis Video**.
+**Frontend (Next.js):**
+
+```bash
+cd frontend-next
+cp .env.local.example .env.local
+npm install
+npm run dev
+```
+
+Buka [`http://localhost:3000`](http://localhost:3000), upload video mesin, klik **Analisis Video**.
+
+_(Frontend vanilla JS lama di `frontend/` masih tersedia sebagai fallback, otomatis di-serve backend di `http://localhost:8000`.)_
 
 ## 🔌 API
 
@@ -130,10 +144,11 @@ auskulta/
 │   ├── main.py        # FastAPI app, endpoint POST /api/analyze
 │   ├── vision.py       # deteksi anomali visual
 │   ├── audio.py        # deteksi anomali audio (best-effort)
-│   ├── knowledge.py    # organizational memory (TF-IDF retrieval)
+│   ├── knowledge.py    # organizational memory (embedding retrieval + TF-IDF fallback)
 │   ├── diagnosis.py    # fusion + LLM diagnosis
 │   └── config.py       # konfigurasi environment
-├── frontend/           # UI satu halaman
+├── frontend-next/       # UI utama (Next.js + TypeScript + Tailwind)
+├── frontend/            # UI lama (vanilla JS), fallback yang masih di-serve backend
 ├── data/
 │   └── knowledge_base.json   # histori maintenance
 ├── docs/
